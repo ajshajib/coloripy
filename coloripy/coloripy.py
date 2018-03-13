@@ -321,20 +321,29 @@ def skew_scale(fraction, mode='linear', power=1.):
         return np.sqrt(np.abs(fraction - 0.5) / 0.5) * sign * 0.5 + 0.5
 
 
-def get_msh_cmap(rgb1, rgb2, ref=None, num_bins=33, rescale='linear',
-                 method='moreland'):
+def get_msh_cmap(rgb1=[], rgb2=[], ref_point=None, num_bins=33,
+                 rescale='linear', power=1., method='moreland'):
     """
     Returns diverging color map created in Msh space and rescaled.
     Wrapper function to directly utilize the MshColorMap class.
-    :param rgb1:
-    :param rgb2:
-    :param ref:
-    :param num_points:
-    :param rescale:
+    :param rgb1: default value is from the Moreland paper
+    :param rgb2: default value is from the Moreland paper
+    :param ref_point: RGB of the midpoint
+    :param num_bins: bin number to make the colormap
+    :param rescale: linear, squre, cubic, sqrt, power
+    :param power: power if rescale='power' is chosen
     :return:
     """
+    if rgb1 == []:
+        rgb1 = np.array([59, 76, 192])
+    if rgb2 == []:
+        rgb2 = np.array([180, 4, 38])
+    if ref_point is None:
+        ref_point = [221, 221, 221]
+
     colormap = MshColorMap(rgb1, rgb2, num_bins=num_bins,
-                           method=method).get_colormap()
+                           method=method,
+                           ref_point=ref_point).get_colormap()
 
     color_dict = {'red': [], 'green': [], 'blue': []}
 
@@ -343,12 +352,15 @@ def get_msh_cmap(rgb1, rgb2, ref=None, num_bins=33, rescale='linear',
     for i, rgb in enumerate(colormap):
         red, green, blue = rgb
         fraction = float(i) / (n_bins - 1)
-        color_dict['red'].append((skew_scale(fraction, mode=rescale),
-                                  red, red))
-        color_dict['green'].append((skew_scale(fraction, mode=rescale),
-                                    green, green))
-        color_dict['blue'].append((skew_scale(fraction, mode=rescale),
-                                   blue, blue))
+        color_dict['red'].append(
+            (skew_scale(fraction, mode=rescale, power=power),
+             red, red))
+        color_dict['green'].append(
+            (skew_scale(fraction, mode=rescale, power=power),
+             green, green))
+        color_dict['blue'].append(
+            (skew_scale(fraction, mode=rescale, power=power),
+             blue, blue))
 
     msh_cmap = LinearSegmentedColormap('msh', color_dict)
 
