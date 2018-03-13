@@ -8,15 +8,13 @@ Coloripy
 .. image:: https://travis-ci.org/ajshajib/coloripy.png?branch=master
     :target: https://travis-ci.org/ajshajib/coloripy
 
-Make beautiful divergent color maps in Msh space.
+A package to make beautiful divergent color maps in Msh space.
 
 
 Features
 --------
 
-* Make aesthetically pleasing colormaps in the Msh space. For technical details, see "Diverging
-Color Maps for Scientific Visualization (Expanded)" by Kenneth Moreland
-(http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf).
+* Make aesthetically pleasing color-maps in the Msh space. For technical details, see "Diverging Color Maps for Scientific Visualization (Expanded)" by Kenneth Moreland (http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf).
 
 Installation
 ------------
@@ -32,5 +30,5 @@ Usage Example
 -------
 .. code-block:: python
 
-    $ import coloripy as cp
-    $ msh_cmap = cp.get_msh_cmap()
+    import coloripy as cp
+    msh_cmap = cp.get_msh_cmap()
