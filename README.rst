@@ -14,5 +14,23 @@ Make beautiful divergent color maps in Msh space.
 Features
 --------
 
-* TODO
+* Make aesthetically pleasing colormaps in the Msh space. For technical details, see "Diverging
+Color Maps for Scientific Visualization (Expanded)" by Kenneth Moreland
+(http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf).
 
+Installation
+------------
+
+.. code-block:: bash
+
+    $ git clone https://github.com/ajshajib/coloripy.git
+    $ cd coloripy
+    $ python setup.py install --user
+
+
+Usage Example
+-------
+.. code-block:: python
+
+    $ import coloripy as cp
+    $ msh_cmap = cp.get_msh_cmap()
