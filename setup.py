@@ -24,7 +24,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='coloripy',
     version='0.0.0',
-    description='Make beautiful divergent color maps in Msh space.',
+    description='Make beautiful diverging color maps in Msh space.',
     long_description=readme + '\n\n' + doclink + '\n\n' + history,
     author='Anowar J. Shajib',
     author_email='ajshajib@gmail.com',
