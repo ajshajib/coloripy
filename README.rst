@@ -29,14 +29,14 @@ Installation
 
 Quick Start
 -----------
-.. code-block:: python
+.. code-block::
 
     import coloripy as cp
     msh_cmap = cp.get_msh_cmap()
 
 Usage Example
 -------------
-.. code-block:: python
+.. code-block::
 
     import numpy as np
     import matplotlib.pyplot as plt
