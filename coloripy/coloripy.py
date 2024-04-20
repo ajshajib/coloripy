@@ -22,8 +22,9 @@ class MshColorMap(object):
     output using print will be given.
     """
 
-    def __init__(self, rgb1, rgb2, num_bins=33, divide=255.,
-                 method='moreland', ref_point=None):
+    def __init__(
+        self, rgb1, rgb2, num_bins=33, divide=255.0, method="moreland", ref_point=None
+    ):
         """
         :param rgb1:
         :param rgb2:
@@ -35,19 +36,24 @@ class MshColorMap(object):
         self.num_colors = int(num_bins)
 
         # Transfer-matrix for the conversion of RGB to XYZ color space
-        self._transfer_matrix = np.array([[0.4124564, 0.2126729, 0.0193339],
-                                         [0.3575761, 0.7151522, 0.1191920],
-                                         [0.1804375, 0.0721750, 0.9503041]])
+        self._transfer_matrix = np.array(
+            [
+                [0.4124564, 0.2126729, 0.0193339],
+                [0.3575761, 0.7151522, 0.1191920],
+                [0.1804375, 0.0721750, 0.9503041],
+            ]
+        )
         if ref_point is None:
             self.xn, self.yn, self.zn = 95.047, 100.0, 108.883
         else:
             self.xn, self.yn, self.zn = ref_point
 
-        assert np.mod(self.num_colors, 2) == 1, \
-            'For diverging colormaps odd numbers of colors are desireable!'
+        assert (
+            np.mod(self.num_colors, 2) == 1
+        ), "For diverging colormaps odd numbers of colors are desireable!"
 
-        known_methods = ['moreland', 'lab']
-        assert method in known_methods, 'Unknown method was specified!'
+        known_methods = ["moreland", "lab"]
+        assert method in known_methods, "Unknown method was specified!"
 
         if method == known_methods[0]:
             self.color_map = self.generate_colormap(rgb1, rgb2, divide)
@@ -71,12 +77,12 @@ class MshColorMap(object):
         rgb_linear = np.zeros((3,))
 
         for i, value in enumerate(rgb):
-            value = float(value) / 255.
+            value = float(value) / 255.0
             if value > 0.04045:
                 value = ((value + 0.055) / 1.055) ** 2.4
             else:
                 value = value / 12.92
-            rgb_linear[i] = value * 100.
+            rgb_linear[i] = value * 100.0
         return rgb_linear
 
     @staticmethod
@@ -88,14 +94,14 @@ class MshColorMap(object):
         srgb = np.zeros((3,))
 
         for i, value in enumerate(rgb_linear):
-            value = float(value) / 100.
+            value = float(value) / 100.0
 
             if value > 0.00313080495356037152:
-                value = (1.055 * np.power(value, 1. / 2.4)) - 0.055
+                value = (1.055 * np.power(value, 1.0 / 2.4)) - 0.055
             else:
                 value = value * 12.92
 
-            srgb[i] = round(value * 255.)
+            srgb[i] = round(value * 255.0)
 
         return srgb
 
@@ -114,8 +120,7 @@ class MshColorMap(object):
         """
         # return np.round(np.dot(xyz,
         #                   np.array(np.matrix(self._transfer_matrix).I)))
-        return self.get_srgb(np.dot(xyz,
-                            np.array(np.matrix(self._transfer_matrix).I)))
+        return self.get_srgb(np.dot(xyz, np.array(np.matrix(self._transfer_matrix).I)))
 
     def convert_rgb2lab(self, rgb):
         """
@@ -127,13 +132,13 @@ class MshColorMap(object):
         def helper_func(a):
             limit = 0.008856
             if a > limit:
-                return np.power(a, 1./3.)
+                return np.power(a, 1.0 / 3.0)
             else:
-                return 7.787*a + 16./116.
+                return 7.787 * a + 16.0 / 116.0
 
-        l = 116. * (helper_func(y/self.yn) - (16./116.))
-        a = 500. * (helper_func(x/self.xn) - helper_func(y/self.yn))
-        b = 200. * (helper_func(y/self.yn) - helper_func(z/self.zn))
+        l = 116.0 * (helper_func(y / self.yn) - (16.0 / 116.0))
+        a = 500.0 * (helper_func(x / self.xn) - helper_func(y / self.yn))
+        b = 200.0 * (helper_func(y / self.yn) - helper_func(z / self.zn))
 
         return np.array([l, a, b])
 
@@ -147,16 +152,16 @@ class MshColorMap(object):
         def finverse(x):
             x_lim = 0.008856
             a = 7.787
-            b = 16. / 116.
+            b = 16.0 / 116.0
             y_lim = a * x_lim + b
             if x > y_lim:
                 return np.power(x, 3)
             else:
                 return (x - b) / a
 
-        x = self.xn * finverse((a/500.) + (l+16.)/116.)
-        y = self.yn * finverse((l+16.)/116.)
-        z = self.zn * finverse((l+16.)/116. - (b/200.))
+        x = self.xn * finverse((a / 500.0) + (l + 16.0) / 116.0)
+        y = self.yn * finverse((l + 16.0) / 116.0)
+        z = self.zn * finverse((l + 16.0) / 116.0 - (b / 200.0))
 
         return self.convert_xyz2rgb(np.array([x, y, z]))
 
@@ -188,11 +193,11 @@ class MshColorMap(object):
         return np.array([l, a, b])
 
     def convert_rgb2msh(self, rgb):
-        """ Direct conversion of RGB to Msh. """
+        """Direct conversion of RGB to Msh."""
         return self.convert_lab2msh(self.convert_rgb2lab(rgb))
 
     def convert_msh2rgb(self, msh):
-        """ Direct conversion of Msh to RGB. """
+        """Direct conversion of Msh to RGB."""
         return self.convert_lab2rgb(self.convert_msh2lab(msh))
 
     @staticmethod
@@ -207,8 +212,11 @@ class MshColorMap(object):
         if m_saturated >= m_unstaturated:
             return h_saturated
         else:
-            h_spin = s_saturated * np.sqrt(m_unstaturated**2 - m_saturated**2) / \
-                    (m_saturated * np.sin(s_saturated))
+            h_spin = (
+                s_saturated
+                * np.sqrt(m_unstaturated**2 - m_saturated**2)
+                / (m_saturated * np.sin(s_saturated))
+            )
             if h_saturated > -np.pi / 3:
                 return h_saturated + h_spin
             else:
@@ -226,18 +234,18 @@ class MshColorMap(object):
         m2, s2, h2 = msh2.tolist()
 
         # If points saturated and distinct, place white in middle
-        if (s1 > 0.05) and (s2 > 0.05) and (np.abs(h1 - h2) > np.pi / 3.):
-            Mmid = max([m1, m2, 88.])
+        if (s1 > 0.05) and (s2 > 0.05) and (np.abs(h1 - h2) > np.pi / 3.0):
+            Mmid = max([m1, m2, 88.0])
             if interp < 0.5:
                 m2 = Mmid
-                s2 = 0.
-                h2 = 0.
+                s2 = 0.0
+                h2 = 0.0
                 interp = 2 * interp
             else:
                 m1 = Mmid
-                s1 = 0.
-                h1 = 0.
-                interp = 2 * interp - 1.
+                s1 = 0.0
+                h1 = 0.0
+                interp = 2 * interp - 1.0
 
         # Adjust hue of unsaturated colors
         if (s1 < 0.05) and (s2 > 0.05):
@@ -246,8 +254,9 @@ class MshColorMap(object):
             h2 = self.adjust_hue(np.array([m1, s1, h1]), m2)
 
         # Linear interpolation on adjusted control points
-        msh_mid = (1 - interp) * np.array([m1, s1, h1]) + \
-                 interp * np.array([m2, s2, h2])
+        msh_mid = (1 - interp) * np.array([m1, s1, h1]) + interp * np.array(
+            [m2, s2, h2]
+        )
 
         return self.convert_msh2rgb(msh_mid)
 
@@ -261,7 +270,7 @@ class MshColorMap(object):
         """
 
         # calculate
-        scalars = np.linspace(0., 1., self.num_colors)
+        scalars = np.linspace(0.0, 1.0, self.num_colors)
         RGBs = np.zeros((self.num_colors, 3))
         for i, s in enumerate(scalars):
             RGBs[i, :] = self.interpolate_color(rgb1, rgb2, s)
@@ -278,14 +287,14 @@ class MshColorMap(object):
 
         lab1 = self.convert_rgb2lab(rgb1)
         lab2 = self.convert_rgb2lab(rgb2)
-        lab_white = np.array([100., 0., 0.])
+        lab_white = np.array([100.0, 0.0, 0.0])
 
         lab = np.zeros((int(self.num_colors), 3))
         rgbs = np.zeros((int(self.num_colors), 3))
-        n2 = np.floor(self.num_colors / 2.)
+        n2 = np.floor(self.num_colors / 2.0)
 
         for i in range(3):
-            lab[0:n2+1, i] = np.linspace(lab1[i], lab_white[i], n2 + 1)
+            lab[0 : n2 + 1, i] = np.linspace(lab1[i], lab_white[i], n2 + 1)
             lab[n2:, i] = np.linspace(lab_white[i], lab2[i], n2 + 1)
         for i, l in enumerate(lab):
             rgbs[i, :] = self.convert_lab2rgb(l)
@@ -293,7 +302,7 @@ class MshColorMap(object):
         return rgbs / divide
 
 
-def skew_scale(fraction, mode='linear', power=1.):
+def skew_scale(fraction, mode="linear", power=1.0):
     """
     Rescale the color distribution to change emphasis.
     :param fraction:
@@ -301,28 +310,40 @@ def skew_scale(fraction, mode='linear', power=1.):
     :param power:
     :return:
     """
-    assert mode in ['linear', 'square', 'cubic', 'power', 'sqrt'], \
-        'Rescaling mode not supported!'
+    assert mode in [
+        "linear",
+        "square",
+        "cubic",
+        "power",
+        "sqrt",
+    ], "Rescaling mode not supported!"
 
     if fraction >= 0.5:
-        sign = 1.
+        sign = 1.0
     else:
-        sign = -1.
+        sign = -1.0
 
-    if mode == 'linear':
+    if mode == "linear":
         return fraction
-    elif mode == 'square':
-        return (np.abs(fraction - 0.5) / 0.5)**2 * sign*0.5 + 0.5
-    elif mode == 'cubic':
-        return ((fraction - 0.5) / 0.5)**3 *0.5 + 0.5
-    elif mode  == 'power':
-        return (np.abs(fraction - 0.5) / 0.5)**power * sign * 0.5 + 0.5
-    elif mode == 'sqrt':
+    elif mode == "square":
+        return (np.abs(fraction - 0.5) / 0.5) ** 2 * sign * 0.5 + 0.5
+    elif mode == "cubic":
+        return ((fraction - 0.5) / 0.5) ** 3 * 0.5 + 0.5
+    elif mode == "power":
+        return (np.abs(fraction - 0.5) / 0.5) ** power * sign * 0.5 + 0.5
+    elif mode == "sqrt":
         return np.sqrt(np.abs(fraction - 0.5) / 0.5) * sign * 0.5 + 0.5
 
 
-def get_msh_cmap(rgb1=[], rgb2=[], ref_point=None, num_bins=33,
-                 rescale='linear', power=1., method='moreland'):
+def get_msh_cmap(
+    rgb1=[],
+    rgb2=[],
+    ref_point=None,
+    num_bins=33,
+    rescale="linear",
+    power=1.0,
+    method="moreland",
+):
     """
     Returns diverging color map created in Msh space and rescaled.
     Wrapper function to directly utilize the MshColorMap class.
@@ -334,34 +355,34 @@ def get_msh_cmap(rgb1=[], rgb2=[], ref_point=None, num_bins=33,
     :param power: power if rescale='power' is chosen
     :return:
     """
-    if rgb1 == []:
+    if len(rgb1) == 0:
         rgb1 = np.array([59, 76, 192])
-    if rgb2 == []:
+    if len(rgb2) == 0:
         rgb2 = np.array([180, 4, 38])
     if ref_point is None:
         ref_point = [221, 221, 221]
 
-    colormap = MshColorMap(rgb1, rgb2, num_bins=num_bins,
-                           method=method,
-                           ref_point=ref_point).get_colormap()
+    colormap = MshColorMap(
+        rgb1, rgb2, num_bins=num_bins, method=method, ref_point=ref_point
+    ).get_colormap()
 
-    color_dict = {'red': [], 'green': [], 'blue': []}
+    color_dict = {"red": [], "green": [], "blue": []}
 
     n_bins = len(colormap)
 
     for i, rgb in enumerate(colormap):
         red, green, blue = rgb
         fraction = float(i) / (n_bins - 1)
-        color_dict['red'].append(
-            (skew_scale(fraction, mode=rescale, power=power),
-             red, red))
-        color_dict['green'].append(
-            (skew_scale(fraction, mode=rescale, power=power),
-             green, green))
-        color_dict['blue'].append(
-            (skew_scale(fraction, mode=rescale, power=power),
-             blue, blue))
+        color_dict["red"].append(
+            (skew_scale(fraction, mode=rescale, power=power), red, red)
+        )
+        color_dict["green"].append(
+            (skew_scale(fraction, mode=rescale, power=power), green, green)
+        )
+        color_dict["blue"].append(
+            (skew_scale(fraction, mode=rescale, power=power), blue, blue)
+        )
 
-    msh_cmap = LinearSegmentedColormap('msh', color_dict)
+    msh_cmap = LinearSegmentedColormap("msh", color_dict)
 
     return msh_cmap
